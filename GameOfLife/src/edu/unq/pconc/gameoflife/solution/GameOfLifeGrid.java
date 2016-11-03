@@ -1,8 +1,11 @@
 package edu.unq.pconc.gameoflife.solution;
 
 import java.awt.Dimension;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import edu.unq.pconc.gameoflife.CellGrid;
 
@@ -13,6 +16,8 @@ public class GameOfLifeGrid implements CellGrid {
 	private int y = 0;
 	private int gen = 0;
 	private int threads = 1;
+	private ExecutorService pool;
+	private List<List<Integer>> indicesCurrents;
 	
 	////////// setters //////////
 	private void setWidth(int x){
@@ -60,12 +65,52 @@ public class GameOfLifeGrid implements CellGrid {
 	public synchronized void next() {
 		this.gen = this.gen+1;
 		//aca van los threads
+		List<List<List<Boolean>>> tasksThreads = this.dividerTask();
+		for(int i=0; i< this.threads; i++){
+			Runnable runnable = new GameOfLifeGridEvaluator(tasksThreads.get(i), this.indicesCurrents.get(i));
+			this.pool.execute(runnable);
+		}
 		//se terminan los threads y avisan
 		this.board= this.boardNext;
-		// TODO Auto-generated method stub
-		
 	}
 
+	private List<List<List<Boolean>>> dividerTask() {
+		List<List<List<Boolean>>> tasks = new ArrayList<List<List<Boolean>>>();
+		List<List<Integer>> indices = new ArrayList<List<Integer>>();
+		int cantColumns = this.x / this.threads;//cantidad de columnas para cada thread
+		int leftover = this.x % this.threads;//cantidad de columnas restantes
+		int t= 0;
+		int i= 0;
+		int init= 0;
+		while(t < this.threads){
+			List<List<Boolean>> columns = new ArrayList<List<Boolean>>();
+			ArrayList<Integer> numbers = new ArrayList<Integer>();
+			while(i < cantColumns){
+				columns.add(this.board.get(init));
+				numbers.add(init);
+				i+= 1;
+				init+= 1;
+			}
+			tasks.add(columns);
+			indices.add(numbers);
+			i= 0;
+			t+= 1;
+		}
+		t= 0;
+		while(t < this.threads && init < this.x){
+			while(i < leftover){
+				tasks.get(i).add(this.board.get(init));
+				indices.get(i).add(init);
+				i+= 1;
+				init+= 1;
+			}
+			i= 0;
+			t+= 1;
+		}
+		this.indicesCurrents = indices;
+		return tasks;
+	}
+	
 	@Override
 	public void resize(int col, int row) {
 		List<List<Boolean>> newBoard =new ArrayList<List<Boolean>>();
@@ -110,13 +155,11 @@ public class GameOfLifeGrid implements CellGrid {
 
 	@Override
 	public void setThreads(int threads) {
+		this.pool = Executors.newFixedThreadPool(threads);
+		this.threads = threads;
 		if(threads < 1){
-			this.setThreads(1);
 			System.out.println("El numero de threads debe ser 1 o superior");
-		}else{
-			this.threads=threads;
-		}
-		
+		}	
 	}
 
 }

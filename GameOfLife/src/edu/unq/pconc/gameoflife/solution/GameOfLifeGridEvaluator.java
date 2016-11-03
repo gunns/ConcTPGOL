@@ -1,7 +1,25 @@
 package edu.unq.pconc.gameoflife.solution;
 
-public class GameOfLifeGridEvaluator {
+import java.util.List;
+
+public class GameOfLifeGridEvaluator implements Runnable {
 	GameOfLifeGrid golG;
+	private List<List<Boolean>> columns;
+	private List<Integer> indices;
+	
+	public GameOfLifeGridEvaluator(List<List<Boolean>> columns, List<Integer> indices) {
+		this.columns = columns;
+		this.indices = indices;		
+	}
+
+	@Override
+	public void run() {
+		for(int i=0; i < this.columns.size(); i++){
+			for(int r=0; r < this.indices.size(); r++){
+				this.evaluarCelda(indices.get(i), r);
+			}
+		}
+	}
 	
 	public void evaluarCelda(int col, int row){
 		Boolean cell= this.golG.getCell(col, row);
