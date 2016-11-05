@@ -85,9 +85,9 @@ public class GameOfLifeGridTest {
 	
 	@Test
 	public void testSetZeroThreads() {
-		this.golg.setThreads(0);
+		this.golg.setThreads(5);
 		
-		assertEquals(1, this.golg.getThreads());
+		assertEquals(5, this.golg.getThreads());
 	}
 
 }

@@ -7,7 +7,8 @@ public class GameOfLifeGridEvaluator implements Runnable {
 	private List<List<Boolean>> columns;
 	private List<Integer> indices;
 	
-	public GameOfLifeGridEvaluator(List<List<Boolean>> columns, List<Integer> indices) {
+	public GameOfLifeGridEvaluator(GameOfLifeGrid golg, List<List<Boolean>> columns, List<Integer> indices) {
+		this.golG = golg;
 		this.columns = columns;
 		this.indices = indices;		
 	}
@@ -16,59 +17,63 @@ public class GameOfLifeGridEvaluator implements Runnable {
 	public void run() {
 		for(int i=0; i < this.columns.size(); i++){
 			for(int r=0; r < this.indices.size(); r++){
-				this.evaluarCelda(indices.get(i), r);
+				this.evaluateCell(indices.get(i), r);
 			}
 		}
 	}
 	
-	public void evaluarCelda(int col, int row){
-		Boolean cell= this.golG.getCell(col, row);
-		if (!cell){
-			this.golG.setCell(col, row, (this.cantVecinas(col, row)==3));
+	public void evaluateCell(int col, int row){
+		Boolean valueCell= this.golG.getCell(col, row);
+		if(valueCell){
+			if(this.quantityOfNeighboring(col,row) < 2 | this.quantityOfNeighboring(col,row) > 3){
+				this.golG.setCell(col, row, false);
+			}
+		}else{
+			this.golG.setCell(col, row, (this.quantityOfNeighboring(col, row) == 3));
 		}
 	}
 
-	private int cantVecinas(int col, int row) {
+	private int quantityOfNeighboring(int col, int row) {
 		int cant = 0;
 		if(row!=0){
-			cant=cant + this.filaEvaluada(col, row-1);
+			cant+= this.evaluateRow(col, row-1);
 		}
-		cant = cant + this.vecinasDeFilas(col, row);
-		if(row!=this.golG.getDimension().height){
-			cant=cant+ this.filaEvaluada(col, row+1);
+		cant+= this.neighboringInRow(col, row);
+		if(row+1 <  this.golG.getHeight()){
+			cant+= this.evaluateRow(col, row+1);
 		}
 		return cant;
 	}
 
 
-	private int vecinasDeFilas(int col, int row){
+	public int neighboringInRow(int col, int row){
 		int cant = 0;
 		if(col != 0){
 			if(this.golG.getCell(col-1, row)){
-				cant=cant+1;
+				cant+= 1;
 			}
 		}
-		if(col != this.golG.getDimension().width){
+		if(col+1 < (this.golG.getWidth())){
 			if(this.golG.getCell(col+1, row)){
-				cant=cant+1;
+				cant+= 1;
 			}
 		}
 		return cant;
 	}
 	
-	private int filaEvaluada(int col, int row){
-		int cant =0;
+	public int evaluateRow(int col, int row){
+		int cant= 0;
 		if (col !=0){
 			if (this.golG.getCell(col-1, row)){
-				cant = cant+1;
+				cant+= 1;
 			}
 		}
 		if (this.golG.getCell(col, row)){
-			cant=cant+1;
+			cant+= 1;
 		}
-		if(col != this.golG.getDimension().width){
+		if(col+1 < (this.golG.getWidth())){
 			if(this.golG.getCell(col+1, row)){
-				cant=cant+1;
+				cant+= 1;
 			}
 		}
 		return cant;
