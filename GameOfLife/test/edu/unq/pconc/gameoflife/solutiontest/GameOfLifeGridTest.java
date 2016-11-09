@@ -18,7 +18,7 @@ public class GameOfLifeGridTest {
 		
 		boolean cellWanted = this.golg.getCell(1,2);
 		
-		assertEquals(false, cellWanted);
+		assertFalse( cellWanted);
 	}
 	
 	@Test
@@ -28,7 +28,7 @@ public class GameOfLifeGridTest {
 		
 		boolean cellWanted = golg.getCell(1,2);
 		
-		assertEquals(false, cellWanted);
+		assertFalse(cellWanted);
 	}
 	
 	@Test
@@ -37,7 +37,7 @@ public class GameOfLifeGridTest {
 		
 		this.golg.setCell(2, 2, true);
 		
-		assertEquals(true, this.golg.getCell(2,2));
+		assertFalse(this.golg.getCell(2,2));
 	}
 	
 	@Test
@@ -68,7 +68,7 @@ public class GameOfLifeGridTest {
 		
 		this.golg.clear();
 		
-		assertEquals(false, this.golg.getCell(2,1));
+		assertFalse(this.golg.getCell(2,1));
 	}
 	
 	@Test

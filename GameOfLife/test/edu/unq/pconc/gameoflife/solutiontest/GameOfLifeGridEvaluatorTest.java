@@ -84,6 +84,6 @@ public class GameOfLifeGridEvaluatorTest {
 		Runnable runnable = new GameOfLifeGridEvaluator(this.golg, this.golg.getBoard(), numbers);
 		
 		runnable.run();
-		System.out.println(golg.getBoardNext());
+		System.out.println(this.golg.getBoardNext());
 	}
 }

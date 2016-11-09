@@ -17,6 +17,7 @@ public class GameOfLifeGrid implements CellGrid {
 	private int gen = 0;
 	private int threads = 1;
 	private ExecutorService pool;
+	public Barrera barrera=new Barrera(this.threads);
 	private List<List<Integer>> indicesCurrents;
 	
 	////////// setters //////////
@@ -73,6 +74,7 @@ public class GameOfLifeGrid implements CellGrid {
 		return this.gen;
 	}
 
+	
 	@Override
 	public synchronized void next() {
 		this.gen = this.gen+1;
@@ -83,7 +85,9 @@ public class GameOfLifeGrid implements CellGrid {
 			this.pool.execute(runnable);
 		}
 		//se terminan los threads y avisan
-		this.board= this.boardNext;
+		//this.barrera.esperar();
+		this.board=this.boardNext;
+		this.barrera = new Barrera(this.threads);
 	}
 
 	private List<List<List<Boolean>>> dividerTask() {
@@ -129,33 +133,33 @@ public class GameOfLifeGrid implements CellGrid {
 		int c= 0;
 		int r= 0;
 		if(this.board.isEmpty()){
-			while(c<col){
-				newBoard.add(c,new ArrayList<Boolean>());
-				while(r<row){
-					newBoard.get(c).add(r,false);
-					r+=1;
+			while(r<row){
+				newBoard.add(r,new ArrayList<Boolean>());
+				while(c<col){
+					newBoard.get(r).add(c,false);
+					c+=1;
 				}
-				r= 0;
-				c+=1;
+				c= 0;
+				r+=1;
 			}
 		}
 		else{
-			while(c<col){
-				newBoard.add(c, new ArrayList<Boolean>());
-				while (r<row){
+			while(r<row){
+				newBoard.add(r, new ArrayList<Boolean>());
+				while (c<col){
 					if(newBoard.size() <= this.board.size()){
-						if(newBoard.get(c).size() < this.board.get(c).size()){
-							newBoard.get(c).add(r, this.board.get(c).get(r));
+						if(newBoard.get(r).size() < this.board.get(r).size()){
+							newBoard.get(r).add(c, this.board.get(r).get(c));
 						}else{
-							newBoard.get(c).add(r, false);
+							newBoard.get(r).add(c, false);
 						}
 					}else{
-						newBoard.get(c).add(r, false);
+						newBoard.get(r).add(c, false);
 					}
-					r+=1;
+					c+=1;
 				}
-				r= 0;
-				c+=1;
+				c= 0;
+				r+=1;
 			}
 		}
 		this.board = newBoard;
@@ -169,8 +173,13 @@ public class GameOfLifeGrid implements CellGrid {
 	public void setThreads(int threads) {
 		this.pool = Executors.newFixedThreadPool(threads);
 		this.threads = threads;
+		this.barrera = new Barrera(threads);
 		//if(threads < 1){
 		//	System.out.println("El numero de threads debe ser 1 o superior");
 		//}	
+	}
+	public void setBoardNext(List<List<Boolean>> nuevaLista) {
+		this.boardNext = nuevaLista;
+		
 	}
 }
