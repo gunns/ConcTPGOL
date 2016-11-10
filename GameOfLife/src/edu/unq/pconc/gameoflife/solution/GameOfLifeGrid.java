@@ -44,6 +44,9 @@ public class GameOfLifeGrid implements CellGrid {
 	public int getHeight() {
 		return this.y;
 	}
+	public List<List<Integer>> getIndicesCurrents(){
+		return this.indicesCurrents;
+	}
 	////////////////////////////
 	
 
@@ -85,12 +88,12 @@ public class GameOfLifeGrid implements CellGrid {
 			this.pool.execute(runnable);
 		}
 		//se terminan los threads y avisan
-		//this.barrera.esperar();
+		//this.barrera = new Barrera(this.threads+1);
+		this.barrera.esperar();
 		this.board=this.boardNext;
-		this.barrera = new Barrera(this.threads);
 	}
 
-	private List<List<List<Boolean>>> dividerTask() {
+	public List<List<List<Boolean>>> dividerTask() {
 		List<List<List<Boolean>>> tasks = new ArrayList<List<List<Boolean>>>();
 		List<List<Integer>> indices = new ArrayList<List<Integer>>();
 		int cantColumns = this.x / this.threads;//cantidad de columnas para cada thread
@@ -113,7 +116,7 @@ public class GameOfLifeGrid implements CellGrid {
 			t+= 1;
 		}
 		t= 0;
-		while(t < this.threads & init < this.x){
+		while(t < this.threads && init < this.x){
 			while(i < leftover){
 				tasks.get(i).add(this.board.get(init));
 				indices.get(i).add(init);
@@ -177,9 +180,5 @@ public class GameOfLifeGrid implements CellGrid {
 		//if(threads < 1){
 		//	System.out.println("El numero de threads debe ser 1 o superior");
 		//}	
-	}
-	public void setBoardNext(List<List<Boolean>> nuevaLista) {
-		this.boardNext = nuevaLista;
-		
 	}
 }

@@ -7,7 +7,7 @@ public class GameOfLifeGridEvaluator implements Runnable {
 	GameOfLifeGrid golG;
 	private List<List<Boolean>> columns;
 	private List<Integer> indices;
-	private List<List<Boolean>> nuevaLista = new ArrayList<List<Boolean>>();
+	private List<List<Boolean>> newList = new ArrayList<List<Boolean>>();
 	
 	public GameOfLifeGridEvaluator(GameOfLifeGrid golg, List<List<Boolean>> columns, List<Integer> indices) {
 		this.golG = golg;
@@ -16,45 +16,38 @@ public class GameOfLifeGridEvaluator implements Runnable {
 	}
 	@Override
 	public void run() {
-		/*for(int i=0; i < this.indices.size(); i++){
-			for(int r=0; r < this.columns.get(0).size(); r++){
-				this.evaluateCell(indices.get(i), r);
-			}
-		}*/
-		this.nuevaLista= new ArrayList<List<Boolean>>();
+		this.newList= new ArrayList<List<Boolean>>();
 		for (int i=0; i<this.indices.size();i+=1){
 			int indicesI= this.indices.get(i);
-			this.nuevaLista.add(indicesI,new ArrayList<Boolean>());
-			this.nuevaLista.get(indicesI).addAll(this.golG.getBoard().get(indicesI));
+			this.newList.add(i,new ArrayList<Boolean>());
+			this.newList.get(i).addAll(this.golG.getBoard().get(indicesI));
 		}
 		int indice=0;
 		while (indice <this.indices.size()){
 			int row = 0;
 			while (row < this.columns.get(0).size()){
-				//System.out.println("(" + col + "," + row + ") : " + this.quantityOfNeighboring(col, row));
 				this.evaluateCell(indices.get(indice), row);
 				row +=1;
 			}
 			indice +=1;
 		}
 		for (int i=0; i<this.indices.size();i+=1){
-			int indicesI=this.indices.get(i);
+			int indicesI= this.indices.get(i);
 			for (int r=0; r<this.golG.getWidth();r++){
-			this.golG.getBoardNext().get(indicesI).set( r,this.nuevaLista.get(indicesI).get(r));
+				this.golG.getBoardNext().get(indicesI).set(r, this.newList.get(i).get(r));
 			}
 		}	
 		this.golG.barrera.esperar();
-		
 	}
 	
 	public void evaluateCell(int col, int row){
 		Boolean valueCell= this.golG.getCell(col, row);
 		if(valueCell){
 			if(this.quantityOfNeighboring(col,row) < 2 | this.quantityOfNeighboring(col,row) > 3){
-				this.nuevaLista.get(col).set(row, false);
+				this.newList.get(col).set(row, false);
 			}
 		}else{
-			nuevaLista.get(col).set(row, this.quantityOfNeighboring(col, row)==3);
+			this.newList.get(col).set(row, this.quantityOfNeighboring(col, row)==3);
 		}
 	}
 
